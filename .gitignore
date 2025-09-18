@@ -1,0 +1,44 @@
+# Gradle files
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+/local.properties
+
+# Signing keys
+*.jks
+*.keystore
+
+# Android Studio files
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Log files
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Crash reports
+crashlytics-build.log
+
+# Generated files
+captures/
+output.json
+
+# NDK
+.cxx/
+
+# Misc
+*.apk
+*.ap_
+*.dex
+*.class
+
+# Kotlin
+*.kotlin_module
+
+# Jetpack Compose Preview cache
+.compose-cache/
