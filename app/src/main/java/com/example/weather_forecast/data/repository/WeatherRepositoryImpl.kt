@@ -13,9 +13,20 @@ class WeatherRepositoryImpl(
 ) : WeatherRepository {
     override suspend fun getWeatherByCity(city: String): WeatherInfo {
         val response = api.getWeatherByCity(city, apiKey)
-        // TODO : Handle HTTP status
-        val body = response.body() ?: throw Exception("Empty response")
-        return body.toDomain()
+        if (response.isSuccessful) {
+            val body = response.body()
+            if (body != null) {
+                return body.toDomain()
+            } else {
+                throw Exception("Empty response")
+            }
+        } else {
+            when (response.code()) {
+                401 -> throw Exception("Unauthorized: Invalid API key")
+                404 -> throw Exception("City not found")
+                else -> throw Exception("HTTP ${response.code()}: ${response.message()}")
+            }
+        }
     }
 }
 
