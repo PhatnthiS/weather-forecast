@@ -2,6 +2,9 @@ package com.example.weather_forecast.di
 
 import android.util.Log
 import com.example.weather_forecast.data.remote.ApiService
+import com.example.weather_forecast.data.repository.WeatherRepositoryImpl
+import com.example.weather_forecast.domain.repository.WeatherRepository
+import com.example.weather_forecast.domain.usecase.GetWeatherByCityUseCase
 import com.example.weather_forecast.utils.Constants
 import dagger.Module
 import dagger.Provides
@@ -38,4 +41,17 @@ object AppModule {
             .create(ApiService::class.java)
     }
 
+    @Provides
+    @Singleton
+    fun provideWeatherRepository(api: ApiService): WeatherRepository {
+        return WeatherRepositoryImpl(api, Constants.OPEN_WEATHER_API_KEY)
+    }
+
+    @Provides
+    @Singleton
+    fun provideGetWeatherByCityUseCase(
+        repository: WeatherRepository
+    ): GetWeatherByCityUseCase {
+        return GetWeatherByCityUseCase(repository)
+    }
 }
