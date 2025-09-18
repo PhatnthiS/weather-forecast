@@ -4,6 +4,7 @@ import com.example.weather_forecast.data.model.WeatherResponse
 import com.example.weather_forecast.data.remote.ApiService
 import com.example.weather_forecast.domain.model.WeatherInfo
 import com.example.weather_forecast.domain.repository.WeatherRepository
+import com.example.weather_forecast.utils.formatUnixTime
 
 
 class WeatherRepositoryImpl(
@@ -27,9 +28,9 @@ fun WeatherResponse.toDomain(): WeatherInfo {
         description = weather?.firstOrNull()?.description ?: "-",
         icon = weather?.firstOrNull()?.icon ?: "-",
         windSpeed = wind?.speed?.toString() ?: "-",
-        sunrise = sys?.sunrise?.toString() ?: "-",
-        sunset = sys?.sunset?.toString() ?: "-",
         timezone = timezone?.toString() ?: "-",
-        updatedAt = dt?.toString() ?: "-"
+        sunrise = formatUnixTime(sys?.sunrise, timezone),
+        sunset = formatUnixTime(sys?.sunset, timezone),
+        updatedAt =formatUnixTime(dt,timezone)
     )
 }
