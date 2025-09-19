@@ -190,7 +190,8 @@ private fun TemperatureSection(
         Column {
             Text(
                 text = "${temperature}°",
-                style = MaterialTheme.typography.displayLarge
+                style = MaterialTheme.typography.displayLarge,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
             )
             Text(
                 text = description.toTitleCase(),
@@ -229,7 +230,7 @@ private fun DetailsRow(
     ) {
         IconAndDetails(Icons.Filled.WaterDrop, "Humidity", "$humidity %")
         CustomVerticalDivider()
-        IconAndDetails(Icons.Filled.Air, "Wind", "$windSpeed m/s")
+        IconAndDetails(Icons.Filled.Air, "Wind", "$windSpeed km/h")
         CustomVerticalDivider()
         IconAndDetails(Icons.Filled.WbSunny, "Sunrise", sunrise)
         CustomVerticalDivider()

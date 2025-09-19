@@ -6,6 +6,8 @@ import com.example.weather_forecast.domain.model.WeatherInfo
 import com.example.weather_forecast.domain.repository.WeatherRepository
 import com.example.weather_forecast.utils.Constants.OPEN_WEATHER_ICON_URL
 import com.example.weather_forecast.utils.formatUnixTime
+import com.example.weather_forecast.utils.mpsToKmh
+import kotlin.math.roundToInt
 
 
 class WeatherRepositoryImpl(
@@ -34,12 +36,12 @@ class WeatherRepositoryImpl(
 fun WeatherResponse.toDomain(): WeatherInfo {
     return WeatherInfo(
         cityName = name ?: "Unknown",
-        temperature = main?.temp?.toString() ?: "-",
-        feelsLike = main?.feelsLike?.toString() ?: "-",
+        temperature = main?.temp?.roundToInt()?.toString() ?: "-",
+        feelsLike = main?.feelsLike?.roundToInt()?.toString() ?: "-",
         humidity = main?.humidity?.toString() ?: "-",
         description = weather?.firstOrNull()?.description ?: "-",
         icon = String.format(OPEN_WEATHER_ICON_URL, weather?.firstOrNull()?.icon),
-        windSpeed = wind?.speed?.toString() ?: "-",
+        windSpeed = wind?.speed?.let { mpsToKmh(it) } ?: "-",
         timezone = timezone?.toString() ?: "-",
         country = sys?.country ?: "",
         sunrise = formatUnixTime(sys?.sunrise, timezone),
