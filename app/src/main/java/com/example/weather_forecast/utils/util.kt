@@ -17,3 +17,9 @@ fun formatUnixTime(timestamp: Long?, timezoneOffsetSeconds: Long?): String {
         return sdf.format(date)
     } else return "-"
 }
+
+fun String.toTitleCase(): String {
+    return this.split(" ").joinToString(" ") { word ->
+        word.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+    }
+}

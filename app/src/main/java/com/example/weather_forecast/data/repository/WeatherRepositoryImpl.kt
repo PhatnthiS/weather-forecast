@@ -4,6 +4,7 @@ import com.example.weather_forecast.data.model.WeatherResponse
 import com.example.weather_forecast.data.remote.ApiService
 import com.example.weather_forecast.domain.model.WeatherInfo
 import com.example.weather_forecast.domain.repository.WeatherRepository
+import com.example.weather_forecast.utils.Constants.OPEN_WEATHER_ICON_URL
 import com.example.weather_forecast.utils.formatUnixTime
 
 
@@ -37,11 +38,12 @@ fun WeatherResponse.toDomain(): WeatherInfo {
         feelsLike = main?.feelsLike?.toString() ?: "-",
         humidity = main?.humidity?.toString() ?: "-",
         description = weather?.firstOrNull()?.description ?: "-",
-        icon = weather?.firstOrNull()?.icon ?: "-",
+        icon = String.format(OPEN_WEATHER_ICON_URL, weather?.firstOrNull()?.icon),
         windSpeed = wind?.speed?.toString() ?: "-",
         timezone = timezone?.toString() ?: "-",
+        country = sys?.country ?: "",
         sunrise = formatUnixTime(sys?.sunrise, timezone),
         sunset = formatUnixTime(sys?.sunset, timezone),
-        updatedAt =formatUnixTime(dt,timezone)
+        updatedAt = formatUnixTime(dt, timezone)
     )
 }

@@ -11,5 +11,6 @@ data class WeatherInfo(
     val sunrise: String,
     val sunset: String,
     val timezone: String,
+    val country: String,
     val updatedAt: String
 )
