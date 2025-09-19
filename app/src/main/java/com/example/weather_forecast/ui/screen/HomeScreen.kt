@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -15,6 +16,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -25,6 +28,7 @@ import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material.icons.filled.WbTwilight
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -45,8 +49,9 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import com.example.weather_forecast.domain.model.ForecastItem
+import com.example.weather_forecast.domain.model.ForecastWeatherInfo
 import com.example.weather_forecast.domain.model.WeatherInfo
-import com.example.weather_forecast.utils.toTitleCase
 
 @Composable
 fun HomeScreen(viewModel: HomeViewModel) {
@@ -106,8 +111,9 @@ fun HomeScreen(viewModel: HomeViewModel) {
             }
 
             is UiState.Success -> {
-                val data = (uiState as UiState.Success).data
-                WeatherResult(data)
+                val data = (uiState as UiState.Success)
+                WeatherResult(data.weather)
+                ForecastResult(data.forecast)
             }
 
             is UiState.Error -> {
@@ -194,7 +200,7 @@ private fun TemperatureSection(
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
             Text(
-                text = description.toTitleCase(),
+                text = description,
                 style = MaterialTheme.typography.titleMedium
             )
             Text(
@@ -203,7 +209,7 @@ private fun TemperatureSection(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
-        WeatherIcon(icon)
+        WeatherIcon(icon, 150)
     }
 }
 
@@ -215,7 +221,6 @@ private fun DetailsRow(
     sunset: String
 ) {
     Row(
-
         modifier = Modifier
             .fillMaxWidth()
             .height(IntrinsicSize.Min)
@@ -239,12 +244,12 @@ private fun DetailsRow(
 }
 
 @Composable
-fun WeatherIcon(icon: String) {
+fun WeatherIcon(icon: String, size: Int) {
     Box(modifier = Modifier.background(Color.Transparent)) {
         AsyncImage(
             model = icon,
             contentDescription = "Weather Icon",
-            modifier = Modifier.size(150.dp)
+            modifier = Modifier.size(size.dp)
         )
     }
 }
@@ -273,3 +278,75 @@ fun CustomVerticalDivider() {
         color = Color.LightGray
     )
 }
+
+@Composable
+fun ForecastResult(forecast: ForecastWeatherInfo) {
+    Column(modifier = Modifier.fillMaxSize()) {
+        Text(
+            text = "5 Day / 3 Hour Forecast",
+            style = MaterialTheme.typography.headlineSmall,
+            modifier = Modifier.padding(16.dp)
+        )
+        ForecastList(forecast)
+    }
+}
+
+@Composable
+fun ForecastList(forecast: ForecastWeatherInfo) {
+    LazyRow(
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        items(forecast.items) { item ->
+            ForecastCard(item)
+        }
+    }
+}
+
+@Composable
+fun ForecastCard(item: ForecastItem, modifier: Modifier = Modifier) {
+    Card(
+        modifier = modifier
+            .padding(4.dp)
+            .height(IntrinsicSize.Min),
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = item.time,
+                style = MaterialTheme.typography.bodySmall
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            WeatherIcon(item.icon, 60)
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = "${item.temperature}°",
+                style = MaterialTheme.typography.headlineSmall,
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Filled.WaterDrop,
+                    contentDescription = "RainChance",
+                    modifier = Modifier.size(16.dp)
+                )
+                Text(
+                    text = item.pop,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+        }
+    }
+}
+
+
