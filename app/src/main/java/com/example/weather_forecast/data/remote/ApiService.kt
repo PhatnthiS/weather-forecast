@@ -1,5 +1,6 @@
 package com.example.weather_forecast.data.remote
 
+import com.example.weather_forecast.data.model.ForecastWeatherResponse
 import com.example.weather_forecast.data.model.WeatherResponse
 import retrofit2.Response
 import retrofit2.http.GET
@@ -12,4 +13,11 @@ interface ApiService {
         @Query("appid") apiKey: String,
         @Query("units") units: String = "metric"
     ): Response<WeatherResponse>
+
+    @GET("data/2.5/forecast")
+    suspend fun getForecastWeatherByCity(
+        @Query("q") cityName: String,
+        @Query("appid") apiKey: String,
+        @Query("units") units: String = "metric"
+    ): Response<ForecastWeatherResponse>
 }
