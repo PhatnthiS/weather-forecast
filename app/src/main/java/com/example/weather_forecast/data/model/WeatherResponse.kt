@@ -9,6 +9,7 @@ data class WeatherResponse(
     @SerializedName("wind") val wind: Wind?,
     @SerializedName("dt") val dt: Long?,
     @SerializedName("sys") val sys: Sys?,
+    @SerializedName("pop") val pop: Double?,
     @SerializedName("timezone") val timezone: Long?,
 )
 

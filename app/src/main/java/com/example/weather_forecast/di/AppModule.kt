@@ -4,6 +4,7 @@ import android.util.Log
 import com.example.weather_forecast.data.remote.ApiService
 import com.example.weather_forecast.data.repository.WeatherRepositoryImpl
 import com.example.weather_forecast.domain.repository.WeatherRepository
+import com.example.weather_forecast.domain.usecase.GetForecastWeatherByCityUseCase
 import com.example.weather_forecast.domain.usecase.GetWeatherByCityUseCase
 import com.example.weather_forecast.utils.Constants
 import dagger.Module
@@ -53,5 +54,13 @@ object AppModule {
         repository: WeatherRepository
     ): GetWeatherByCityUseCase {
         return GetWeatherByCityUseCase(repository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideGetForecastWeatherByCityUseCase(
+        repository: WeatherRepository
+    ): GetForecastWeatherByCityUseCase {
+        return GetForecastWeatherByCityUseCase(repository)
     }
 }
