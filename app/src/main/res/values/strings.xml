@@ -1,3 +1,30 @@
 <resources>
-    <string name="app_name">weather-forecast</string>
+    <string name="app_name">Weather Forecast</string>
+    <string name="enter_city">Enter city</string>
+    <string name="fetch">Fetch</string>
+    <string name="time_pattern">HH:mm</string>
+    <string name="city">City</string>
+    <string name="enter_city_name">Enter a city name</string>
+    <string name="error">Error: %1$s</string>
+    <string name="city_country">%1$s, %2$s</string>
+    <string name="temperature_unit">%1$s°</string>
+    <string name="feels_like">Feels like: %1$s°</string>
+    <string name="humidity">Humidity</string>
+    <string name="unit_percent">%1$s %%</string>
+    <string name="wind">Wind</string>
+    <string name="unit_km_h">%1$s km/h</string>
+    <string name="sunrise">Sunrise</string>
+    <string name="sunset">Sunset</string>
+    <string name="forecast_weather">Forecast Weather</string>
+    <string name="today">Today</string>
+    <string name="clear">clear</string>
+    <string name="cloud">cloud</string>
+    <string name="rain">rain</string>
+    <string name="weather_icon">Weather Icon</string>
+    <string name="invalid_api_key">Invalid API key</string>
+    <string name="city_not_found">City not found</string>
+    <string name="empty_response">Empty response</string>
+    <string name="http_error">HTTP %1$: %2$s</string>
+    <string name="please_enter_a_city_name">Please enter a city name</string>
+    <string name="unknown_error">Unknown error</string>
 </resources>
