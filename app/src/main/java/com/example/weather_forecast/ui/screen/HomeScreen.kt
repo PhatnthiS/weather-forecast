@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -75,7 +76,10 @@ fun HomeScreen(viewModel: HomeViewModel) {
     val focusManager = LocalFocusManager.current
     val scrollState = rememberScrollState()
 
-    Box(modifier = Modifier.background(color = colorResource(R.color.background_light_gray))) {
+    Box(
+        modifier = Modifier.background(color = colorResource(R.color.background_light_gray))
+            .systemBarsPadding()
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -132,7 +136,7 @@ fun HomeScreen(viewModel: HomeViewModel) {
                 is UiState.Error -> {
                     val error = (uiState as UiState.Error).info
                     Text(text = stringResource(id = error.messageRes), color = Color.Red)
-                    error.code?.let { Text(text = it.toString(),color = Color.Red) }
+                    error.code?.let { Text(text = it.toString(), color = Color.Red) }
                     error.msg?.let { Text(text = it, color = Color.Red) }
                 }
             }
