@@ -47,13 +47,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.example.weather_forecast.domain.model.ForecastItem
 import com.example.weather_forecast.domain.model.ForecastWeatherInfo
 import com.example.weather_forecast.domain.model.WeatherInfo
+import com.example.weather_forecast.utils.Constants.OPEN_WEATHER_ICON_URL
 import com.example.weather_forecast.utils.formatDateTime
 import com.example.weather_forecast.utils.groupForecastByDay
 
@@ -64,67 +69,58 @@ fun HomeScreen(viewModel: HomeViewModel) {
     val focusManager = LocalFocusManager.current
     val scrollState = rememberScrollState()
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(scrollState)
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Top
-    ) {
-        OutlinedTextField(
-            value = city,
-            onValueChange = { city = it },
-            modifier = Modifier.fillMaxWidth(),
-            label = { Text("City") },
-            singleLine = true,
-            keyboardOptions = KeyboardOptions.Default.copy(
-                imeAction = ImeAction.Done
-            ),
-            keyboardActions = KeyboardActions(
-                onDone = {
-                    focusManager.clearFocus()
-                    viewModel.fetchWeather(city.trim())
-                }
-            )
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Button(
-            onClick = {
-                focusManager.clearFocus()
-                viewModel.fetchWeather(city.trim())
-            },
-            modifier = Modifier.fillMaxWidth()
+    Box(modifier = Modifier.background(color = Color(0xFFE0E0E0))) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(scrollState)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Top
         ) {
-            Text("Search")
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        when (uiState) {
-            is UiState.Initial -> {
-                Text(
-                    "Enter a city name",
-                    style = MaterialTheme.typography.bodySmall
+            OutlinedTextField(
+                value = city,
+                onValueChange = { city = it },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("City", style = TextStyle(Color.Gray)) },
+                textStyle = TextStyle(color = Color.Black),
+                singleLine = true,
+                keyboardOptions = KeyboardOptions.Default.copy(
+                    imeAction = ImeAction.Done
+                ),
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        focusManager.clearFocus()
+                        viewModel.fetchWeather(city.trim())
+                    }
                 )
-            }
+            )
 
-            is UiState.Loading -> {
-                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
+            Spacer(modifier = Modifier.height(16.dp))
+
+            when (uiState) {
+                is UiState.Initial -> {
+                    Text(
+                        "Enter a city name",
+                        style = MaterialTheme.typography.labelMedium
+                    )
                 }
-            }
 
-            is UiState.Success -> {
-                val data = (uiState as UiState.Success)
-                WeatherResult(data.weather)
-                ForecastResult(data.forecast, data.weather.updatedAt)
-            }
+                is UiState.Loading -> {
+                    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
+                }
 
-            is UiState.Error -> {
-                val message = (uiState as UiState.Error).message
-                Text("Error: $message", color = MaterialTheme.colorScheme.error)
+                is UiState.Success -> {
+                    val data = (uiState as UiState.Success)
+                    WeatherResult(data.weather)
+                    ForecastResult(data.forecast, data.weather.updatedAt)
+                }
+
+                is UiState.Error -> {
+                    val message = (uiState as UiState.Error).message
+                    Text("Error: $message", color = Color.Red, fontWeight = FontWeight.Bold)
+                }
             }
         }
     }
@@ -182,7 +178,7 @@ private fun HeaderRow(city: String, country: String, updatedAt: String) {
         Text(
             text = updatedAt,
             style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            textAlign = TextAlign.End
         )
     }
 }
@@ -212,7 +208,6 @@ private fun TemperatureSection(
             Text(
                 text = "Feels like: ${feelsLike}°",
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
         WeatherIcon(icon, 150)
@@ -232,7 +227,7 @@ private fun DetailsRow(
             .height(IntrinsicSize.Min)
             .border(
                 width = 2.dp,
-                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+                color = Color.Transparent.copy(alpha = 0.1f),
                 shape = RoundedCornerShape(16.dp)
             )
             .padding(12.dp),
@@ -251,13 +246,11 @@ private fun DetailsRow(
 
 @Composable
 fun WeatherIcon(icon: String, size: Int) {
-    Box(modifier = Modifier.background(Color.Transparent)) {
-        AsyncImage(
-            model = icon,
-            contentDescription = "Weather Icon",
-            modifier = Modifier.size(size.dp)
-        )
-    }
+    AsyncImage(
+        model = String.format(OPEN_WEATHER_ICON_URL, icon),
+        contentDescription = "Weather Icon",
+        modifier = Modifier.size(size.dp)
+    )
 }
 
 @Composable
@@ -268,7 +261,8 @@ fun IconAndDetails(icon: ImageVector, header: String, details: String) {
         Icon(
             imageVector = icon,
             contentDescription = details,
-            modifier = Modifier.size(24.dp)
+            modifier = Modifier.size(24.dp),
+            tint = Color.White
         )
         Text(header, style = MaterialTheme.typography.bodyMedium)
         Text(details, style = MaterialTheme.typography.titleMedium)
@@ -287,13 +281,17 @@ fun CustomVerticalDivider() {
 
 @Composable
 fun ForecastResult(forecast: ForecastWeatherInfo, updatedTime: String) {
+    Spacer(modifier = Modifier.height(16.dp))
+    Text("Forecast Weather", style = MaterialTheme.typography.headlineMedium, color = Color.Black)
+    Spacer(modifier = Modifier.height(16.dp))
+
     val grouped = forecast.items.groupForecastByDay()
     grouped.forEach { (day, items) ->
         Column {
             Text(
                 text = if (updatedTime.contains(day)) "Today" else day,
                 style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(start = 8.dp, top = 8.dp)
+                color = Color.Black,
             )
             ForecastList(items)
         }
@@ -320,7 +318,9 @@ fun ForecastCard(item: ForecastItem, modifier: Modifier = Modifier) {
             .padding(4.dp)
             .height(IntrinsicSize.Min),
         shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        colors = CardDefaults.cardColors(
+            containerColor = Color.Transparent.copy(alpha = 0.1f)
+        )
     ) {
         Column(
             modifier = Modifier.padding(8.dp),
@@ -348,7 +348,8 @@ fun ForecastCard(item: ForecastItem, modifier: Modifier = Modifier) {
                 Icon(
                     imageVector = Icons.Filled.WaterDrop,
                     contentDescription = "RainChance",
-                    modifier = Modifier.size(16.dp)
+                    modifier = Modifier.size(16.dp),
+                    tint = Color.White
                 )
                 Text(
                     text = item.pop,

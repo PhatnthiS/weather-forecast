@@ -7,7 +7,6 @@ import com.example.weather_forecast.domain.model.ForecastItem
 import com.example.weather_forecast.domain.model.ForecastWeatherInfo
 import com.example.weather_forecast.domain.model.WeatherInfo
 import com.example.weather_forecast.domain.repository.WeatherRepository
-import com.example.weather_forecast.utils.Constants.OPEN_WEATHER_ICON_URL
 import com.example.weather_forecast.utils.formatUnixTime
 import com.example.weather_forecast.utils.mpsToKmh
 import com.example.weather_forecast.utils.toTitleCase
@@ -62,7 +61,7 @@ fun WeatherResponse.toDomain(): WeatherInfo {
         feelsLike = main?.feelsLike?.roundToInt()?.toString() ?: "-",
         humidity = main?.humidity?.toString() ?: "-",
         description = weather?.firstOrNull()?.description?.toTitleCase() ?: "-",
-        icon = String.format(OPEN_WEATHER_ICON_URL, weather?.firstOrNull()?.icon),
+        icon =weather?.firstOrNull()?.icon ?: "-",
         windSpeed = wind?.speed?.let { mpsToKmh(it) } ?: "-",
         timezone = timezone?.toString() ?: "-",
         country = sys?.country ?: "",
@@ -77,7 +76,7 @@ fun ForecastWeatherResponse.toDomain(): ForecastWeatherInfo {
         ForecastItem(
             time = formatUnixTime(item.dt, city?.timezone,"E, dd/MM HH:mm"),
             temperature = item.main?.temp?.roundToInt()?.toString() ?: "-",
-            icon = String.format(OPEN_WEATHER_ICON_URL, item.weather?.firstOrNull()?.icon),
+            icon =item.weather?.firstOrNull()?.icon ?: "-",
             pop = "${((item.pop ?: 0.0) * 100).roundToInt()}%"
         )
     }
