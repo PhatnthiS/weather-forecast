@@ -5,6 +5,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import com.example.weather_forecast.R
+import com.example.weather_forecast.data.remote.WeatherException
+import com.example.weather_forecast.domain.model.ErrorInfo
 import com.example.weather_forecast.domain.model.ForecastItem
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -108,4 +110,11 @@ fun weatherInfoGradient(context: Context, description: String, isNight: Boolean)
         start = Offset(0f, 0f),
         end = Offset(1000f, 1000f)
     )
+}
+
+fun handleErrorException(e: WeatherException): ErrorInfo {
+    return when (e) {
+        is WeatherException.HttpError -> ErrorInfo(e.resId, code = e.code, msg = e.msg)
+        else -> ErrorInfo(e.resId)
+    }
 }

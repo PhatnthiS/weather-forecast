@@ -43,6 +43,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -86,7 +87,13 @@ fun HomeScreen(viewModel: HomeViewModel) {
             OutlinedTextField(
                 value = city,
                 onValueChange = { city = it },
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .onFocusChanged { focusState ->
+                        if (focusState.isFocused) {
+                            viewModel.clearError()
+                        }
+                    },
                 label = { Text(stringResource(R.string.city), style = TextStyle(Color.Gray)) },
                 textStyle = TextStyle(color = Color.Black),
                 singleLine = true,
@@ -124,12 +131,10 @@ fun HomeScreen(viewModel: HomeViewModel) {
                 }
 
                 is UiState.Error -> {
-                    val message = (uiState as UiState.Error).message
-                    Text(
-                        stringResource(R.string.error, message),
-                        color = Color.Red,
-                        fontWeight = FontWeight.Bold
-                    )
+                    val error = (uiState as UiState.Error).info
+                    Text(text = stringResource(id = error.messageRes), color = Color.Red)
+                    error.code?.let { Text(text = it.toString(),color = Color.Red) }
+                    error.msg?.let { Text(text = it, color = Color.Red) }
                 }
             }
         }
