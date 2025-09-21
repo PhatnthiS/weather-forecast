@@ -28,7 +28,6 @@ import androidx.compose.material.icons.filled.Air
 import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material.icons.filled.WbTwilight
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -44,6 +43,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalFocusManager
@@ -58,6 +59,7 @@ import coil.compose.AsyncImage
 import com.example.weather_forecast.domain.model.ForecastItem
 import com.example.weather_forecast.domain.model.ForecastWeatherInfo
 import com.example.weather_forecast.domain.model.WeatherInfo
+import com.example.weather_forecast.ui.theme.WeatherForecastTheme
 import com.example.weather_forecast.utils.Constants.OPEN_WEATHER_ICON_URL
 import com.example.weather_forecast.utils.formatDateTime
 import com.example.weather_forecast.utils.groupForecastByDay
@@ -128,38 +130,44 @@ fun HomeScreen(viewModel: HomeViewModel) {
 
 @Composable
 private fun WeatherResult(data: WeatherInfo) {
+    val isNight = data.icon.contains("n")
+    val gradient = weatherGradient(data.description, isNight)
+
     Card(
         shape = RoundedCornerShape(16.dp),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-        ) {
-            HeaderRow(
-                city = data.cityName,
-                country = data.country,
-                updatedAt = data.updatedAt
-            )
+        Box(modifier = Modifier.background(gradient)) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                HeaderRow(
+                    city = data.cityName,
+                    country = data.country,
+                    updatedAt = data.updatedAt
+                )
 
-            Spacer(Modifier.height(8.dp))
+                Spacer(Modifier.height(8.dp))
 
-            TemperatureSection(
-                temperature = data.temperature,
-                feelsLike = data.feelsLike,
-                description = data.description,
-                icon = data.icon
-            )
+                TemperatureSection(
+                    temperature = data.temperature,
+                    feelsLike = data.feelsLike,
+                    description = data.description,
+                    icon = data.icon
+                )
 
-            Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(16.dp))
 
-            DetailsRow(
-                humidity = data.humidity,
-                windSpeed = data.windSpeed,
-                sunrise = data.sunrise,
-                sunset = data.sunset
-            )
+                DetailsRow(
+                    humidity = data.humidity,
+                    windSpeed = data.windSpeed,
+                    sunrise = data.sunrise,
+                    sunset = data.sunset
+                )
+            }
         }
     }
 }
@@ -361,3 +369,137 @@ fun ForecastCard(item: ForecastItem, modifier: Modifier = Modifier) {
 }
 
 
+fun weatherGradient(description: String, isNight: Boolean): Brush {
+    val colors = when {
+        description.contains("clear", ignoreCase = true) && !isNight -> listOf(
+            Color(0xFFFCB562), Color(0xFF56CCF2)
+        )
+
+        description.contains("clear", ignoreCase = true) && isNight -> listOf(
+            Color(0xFF1E3C5A), Color(0xFF0A0A0A)
+        )
+
+        description.contains("cloud", ignoreCase = true) && !isNight -> listOf(
+            Color(0xFF7FB3D5), Color(0xFFB0B0B0)
+        )
+
+        description.contains("cloud", ignoreCase = true) && isNight -> listOf(
+            Color(0xFF525150), Color(0xFF0A0A0A)
+        )
+
+        description.contains("rain", ignoreCase = true) && !isNight -> listOf(
+            Color(0xFF336db8), Color(0xFFB0C4DE)
+        )
+
+        description.contains("rain", ignoreCase = true) && isNight -> listOf(
+            Color(0xFF336db8), Color(0xFF0A0A0A)
+        )
+
+        else -> listOf(Color.Gray, Color.LightGray)
+    }
+
+    return Brush.linearGradient(
+        colors = colors,
+        start = Offset(0f, 0f),
+        end = Offset(1000f, 1000f)
+    )
+}
+
+// Mocking preview weather result
+@Composable
+fun WeatherResultPreview(description: String, isNight: Boolean) {
+    Card(
+        shape = RoundedCornerShape(16.dp),
+        modifier = Modifier.fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+    ) {
+        Box(modifier = Modifier.background(weatherGradient(description, isNight))) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                HeaderRow(
+                    city = "Preview",
+                    country = "xx",
+                    updatedAt = "xxxxx.xxx.xxxx"
+                )
+
+                Spacer(Modifier.height(8.dp))
+
+                TemperatureSection(
+                    temperature = "xx",
+                    feelsLike = "xx",
+                    description = "xxx",
+                    icon = ""
+                )
+
+                Spacer(Modifier.height(16.dp))
+
+                DetailsRow(
+                    humidity = "xx",
+                    windSpeed = "xx",
+                    sunrise = "xx",
+                    sunset = "xx",
+                )
+            }
+        }
+    }
+}
+
+// Previews for different weather types
+@Preview(name = "Clear Day", showBackground = true)
+@Composable
+fun PreviewClearDay() {
+    WeatherForecastTheme(darkTheme = false) {
+        WeatherResultPreview(description = "clear", isNight = false)
+    }
+}
+
+@Preview(name = "Clear Night", showBackground = true)
+@Composable
+fun PreviewClearNight() {
+    WeatherForecastTheme(darkTheme = false) {
+        WeatherResultPreview(description = "clear", isNight = true)
+    }
+}
+
+@Preview(name = "Rain Day", showBackground = true)
+@Composable
+fun PreviewRainDay() {
+    WeatherForecastTheme(darkTheme = false) {
+        WeatherResultPreview(description = "rain", isNight = false)
+    }
+}
+
+@Preview(name = "Rain Night", showBackground = true)
+@Composable
+fun PreviewRainNight() {
+    WeatherForecastTheme(darkTheme = false) {
+        WeatherResultPreview(description = "rain", isNight = true)
+    }
+}
+
+@Preview(name = "Cloudy Day", showBackground = true)
+@Composable
+fun PreviewCloudyDay() {
+    WeatherForecastTheme(darkTheme = false) {
+        WeatherResultPreview(description = "cloud", isNight = false)
+    }
+}
+
+@Preview(name = "Cloudy Night", showBackground = true)
+@Composable
+fun PreviewCloudyNight() {
+    WeatherForecastTheme(darkTheme = false) {
+        WeatherResultPreview(description = "cloud", isNight = true)
+    }
+}
+
+@Preview(name = "xxx", showBackground = true)
+@Composable
+fun PreviewOthers() {
+    WeatherForecastTheme(darkTheme = false) {
+        WeatherResultPreview(description = "xx", isNight = true)
+    }
+}
