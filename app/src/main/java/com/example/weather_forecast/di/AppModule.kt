@@ -1,6 +1,7 @@
 package com.example.weather_forecast.di
 
 import android.util.Log
+import com.example.weather_forecast.BuildConfig
 import com.example.weather_forecast.data.remote.ApiService
 import com.example.weather_forecast.data.repository.WeatherRepositoryImpl
 import com.example.weather_forecast.domain.repository.WeatherRepository
@@ -16,6 +17,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
+
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -45,7 +47,7 @@ object AppModule {
     @Provides
     @Singleton
     fun provideWeatherRepository(api: ApiService): WeatherRepository {
-        return WeatherRepositoryImpl(api, Constants.OPEN_WEATHER_API_KEY)
+        return WeatherRepositoryImpl(api, BuildConfig.OPEN_WEATHER_API_KEY)
     }
 
     @Provides
