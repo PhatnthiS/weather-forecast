@@ -43,11 +43,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -56,13 +57,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import com.example.weather_forecast.R
 import com.example.weather_forecast.domain.model.ForecastItem
 import com.example.weather_forecast.domain.model.ForecastWeatherInfo
 import com.example.weather_forecast.domain.model.WeatherInfo
 import com.example.weather_forecast.ui.theme.WeatherForecastTheme
+import com.example.weather_forecast.utils.Constants
 import com.example.weather_forecast.utils.Constants.OPEN_WEATHER_ICON_URL
 import com.example.weather_forecast.utils.formatDateTime
 import com.example.weather_forecast.utils.groupForecastByDay
+import com.example.weather_forecast.utils.weatherInfoGradient
 
 @Composable
 fun HomeScreen(viewModel: HomeViewModel) {
@@ -71,7 +75,7 @@ fun HomeScreen(viewModel: HomeViewModel) {
     val focusManager = LocalFocusManager.current
     val scrollState = rememberScrollState()
 
-    Box(modifier = Modifier.background(color = Color(0xFFE0E0E0))) {
+    Box(modifier = Modifier.background(color = colorResource(R.color.background_light_gray))) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -83,7 +87,7 @@ fun HomeScreen(viewModel: HomeViewModel) {
                 value = city,
                 onValueChange = { city = it },
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text("City", style = TextStyle(Color.Gray)) },
+                label = { Text(stringResource(R.string.city), style = TextStyle(Color.Gray)) },
                 textStyle = TextStyle(color = Color.Black),
                 singleLine = true,
                 keyboardOptions = KeyboardOptions.Default.copy(
@@ -102,7 +106,7 @@ fun HomeScreen(viewModel: HomeViewModel) {
             when (uiState) {
                 is UiState.Initial -> {
                     Text(
-                        "Enter a city name",
+                        stringResource(R.string.enter_city_name),
                         style = MaterialTheme.typography.labelMedium
                     )
                 }
@@ -121,7 +125,11 @@ fun HomeScreen(viewModel: HomeViewModel) {
 
                 is UiState.Error -> {
                     val message = (uiState as UiState.Error).message
-                    Text("Error: $message", color = Color.Red, fontWeight = FontWeight.Bold)
+                    Text(
+                        stringResource(R.string.error, message),
+                        color = Color.Red,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
         }
@@ -130,8 +138,8 @@ fun HomeScreen(viewModel: HomeViewModel) {
 
 @Composable
 private fun WeatherResult(data: WeatherInfo) {
-    val isNight = data.icon.contains("n")
-    val gradient = weatherGradient(data.description, isNight)
+    val isNight = data.icon.contains(Constants.NIGHT_VARIABLE)
+    val gradient = weatherInfoGradient(LocalContext.current, data.description, isNight)
 
     Card(
         shape = RoundedCornerShape(16.dp),
@@ -180,7 +188,7 @@ private fun HeaderRow(city: String, country: String, updatedAt: String) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = "$city, $country",
+            text = stringResource(R.string.city_country, city, country),
             style = MaterialTheme.typography.headlineMedium
         )
         Text(
@@ -205,7 +213,7 @@ private fun TemperatureSection(
     ) {
         Column {
             Text(
-                text = "${temperature}°",
+                text = stringResource(R.string.temperature_unit, temperature),
                 style = MaterialTheme.typography.displayLarge,
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
@@ -214,7 +222,7 @@ private fun TemperatureSection(
                 style = MaterialTheme.typography.titleMedium
             )
             Text(
-                text = "Feels like: ${feelsLike}°",
+                text = stringResource(R.string.feels_like, feelsLike),
                 style = MaterialTheme.typography.bodyMedium,
             )
         }
@@ -242,13 +250,19 @@ private fun DetailsRow(
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        IconAndDetails(Icons.Filled.WaterDrop, "Humidity", "$humidity %")
+        IconAndDetails(
+            Icons.Filled.WaterDrop, stringResource(R.string.humidity),
+            stringResource(R.string.unit_percent, humidity)
+        )
         CustomVerticalDivider()
-        IconAndDetails(Icons.Filled.Air, "Wind", "$windSpeed km/h")
+        IconAndDetails(
+            Icons.Filled.Air, stringResource(R.string.wind),
+            stringResource(R.string.unit_km_h, windSpeed)
+        )
         CustomVerticalDivider()
-        IconAndDetails(Icons.Filled.WbSunny, "Sunrise", sunrise)
+        IconAndDetails(Icons.Filled.WbSunny, stringResource(R.string.sunrise), sunrise)
         CustomVerticalDivider()
-        IconAndDetails(Icons.Filled.WbTwilight, "Sunset", sunset)
+        IconAndDetails(Icons.Filled.WbTwilight, stringResource(R.string.sunset), sunset)
     }
 }
 
@@ -256,7 +270,7 @@ private fun DetailsRow(
 fun WeatherIcon(icon: String, size: Int) {
     AsyncImage(
         model = String.format(OPEN_WEATHER_ICON_URL, icon),
-        contentDescription = "Weather Icon",
+        contentDescription = stringResource(R.string.weather_icon),
         modifier = Modifier.size(size.dp)
     )
 }
@@ -290,14 +304,18 @@ fun CustomVerticalDivider() {
 @Composable
 fun ForecastResult(forecast: ForecastWeatherInfo, updatedTime: String) {
     Spacer(modifier = Modifier.height(16.dp))
-    Text("Forecast Weather", style = MaterialTheme.typography.headlineMedium, color = Color.Black)
+    Text(
+        stringResource(R.string.forecast_weather),
+        style = MaterialTheme.typography.headlineMedium,
+        color = Color.Black
+    )
     Spacer(modifier = Modifier.height(16.dp))
 
     val grouped = forecast.items.groupForecastByDay()
     grouped.forEach { (day, items) ->
         Column {
             Text(
-                text = if (updatedTime.contains(day)) "Today" else day,
+                text = if (updatedTime.contains(day)) stringResource(R.string.today) else day,
                 style = MaterialTheme.typography.titleMedium,
                 color = Color.Black,
             )
@@ -335,7 +353,7 @@ fun ForecastCard(item: ForecastItem, modifier: Modifier = Modifier) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = formatDateTime(item.time, "HH:mm"),
+                text = formatDateTime(item.time, stringResource(R.string.time_pattern)),
                 style = MaterialTheme.typography.bodySmall
             )
 
@@ -346,7 +364,7 @@ fun ForecastCard(item: ForecastItem, modifier: Modifier = Modifier) {
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = "${item.temperature}°",
+                text = stringResource(R.string.temperature_unit, item.temperature),
                 style = MaterialTheme.typography.headlineSmall,
             )
 
@@ -355,7 +373,7 @@ fun ForecastCard(item: ForecastItem, modifier: Modifier = Modifier) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     imageVector = Icons.Filled.WaterDrop,
-                    contentDescription = "RainChance",
+                    contentDescription = Icons.Filled.WaterDrop.name,
                     modifier = Modifier.size(16.dp),
                     tint = Color.White
                 )
@@ -368,52 +386,16 @@ fun ForecastCard(item: ForecastItem, modifier: Modifier = Modifier) {
     }
 }
 
-
-fun weatherGradient(description: String, isNight: Boolean): Brush {
-    val colors = when {
-        description.contains("clear", ignoreCase = true) && !isNight -> listOf(
-            Color(0xFFFCB562), Color(0xFF56CCF2)
-        )
-
-        description.contains("clear", ignoreCase = true) && isNight -> listOf(
-            Color(0xFF1E3C5A), Color(0xFF0A0A0A)
-        )
-
-        description.contains("cloud", ignoreCase = true) && !isNight -> listOf(
-            Color(0xFF7FB3D5), Color(0xFFB0B0B0)
-        )
-
-        description.contains("cloud", ignoreCase = true) && isNight -> listOf(
-            Color(0xFF525150), Color(0xFF0A0A0A)
-        )
-
-        description.contains("rain", ignoreCase = true) && !isNight -> listOf(
-            Color(0xFF336db8), Color(0xFFB0C4DE)
-        )
-
-        description.contains("rain", ignoreCase = true) && isNight -> listOf(
-            Color(0xFF336db8), Color(0xFF0A0A0A)
-        )
-
-        else -> listOf(Color.Gray, Color.LightGray)
-    }
-
-    return Brush.linearGradient(
-        colors = colors,
-        start = Offset(0f, 0f),
-        end = Offset(1000f, 1000f)
-    )
-}
-
 // Mocking preview weather result
 @Composable
 fun WeatherResultPreview(description: String, isNight: Boolean) {
+    val gradient = weatherInfoGradient(LocalContext.current, description, isNight)
     Card(
         shape = RoundedCornerShape(16.dp),
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
-        Box(modifier = Modifier.background(weatherGradient(description, isNight))) {
+        Box(modifier = Modifier.background(gradient)) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -422,7 +404,7 @@ fun WeatherResultPreview(description: String, isNight: Boolean) {
                 HeaderRow(
                     city = "Preview",
                     country = "xx",
-                    updatedAt = "xxxxx.xxx.xxxx"
+                    updatedAt = "xxx.xxx.xxx"
                 )
 
                 Spacer(Modifier.height(8.dp))
