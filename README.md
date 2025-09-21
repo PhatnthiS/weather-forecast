@@ -5,6 +5,17 @@ The app integrates with the **OpenWeatherMap API** to retrieve live weather data
 
 ---
 
+## 🔗 Download
+
+📱 **Try the app:**  
+
+- [📝 See Latest Release Notes](https://github.com/PhatnthiS/weather-forecast/releases/tag/1.0.0)
+- [📦 Download APK (v1.0.0)](https://github.com/PhatnthiS/weather-forecast/releases/download/1.0.0/WeatherForecast_V.1.0.0.apk)
+
+> ⚠️ You may need to allow installation from unknown sources on your device.
+
+---
+
 ## 📱 Features
 - Enter a city name to search for its weather.
 - Displays temperature, description, humidity, wind, sunrise/sunset times, and forecast for the next 3 hours up to 5 days.
