@@ -66,16 +66,16 @@ fun WeatherResponse.toDomain(): WeatherInfo {
         windSpeed = wind?.speed?.let { mpsToKmh(it) } ?: "-",
         timezone = timezone?.toString() ?: "-",
         country = sys?.country ?: "",
-        sunrise = formatUnixTime(sys?.sunrise, timezone),
-        sunset = formatUnixTime(sys?.sunset, timezone),
-        updatedAt = formatUnixTime(dt, timezone)
+        sunrise = formatUnixTime(sys?.sunrise, timezone,"HH:mm"),
+        sunset = formatUnixTime(sys?.sunset, timezone,"HH:mm"),
+        updatedAt = formatUnixTime(dt, timezone,"E, dd/MM HH:mm")
     )
 }
 
 fun ForecastWeatherResponse.toDomain(): ForecastWeatherInfo {
     val items = this.list.orEmpty().map { item ->
         ForecastItem(
-            time = formatUnixTime(item.dt, city?.timezone),
+            time = formatUnixTime(item.dt, city?.timezone,"E, dd/MM HH:mm"),
             temperature = item.main?.temp?.roundToInt()?.toString() ?: "-",
             icon = String.format(OPEN_WEATHER_ICON_URL, item.weather?.firstOrNull()?.icon),
             pop = "${((item.pop ?: 0.0) * 100).roundToInt()}%"

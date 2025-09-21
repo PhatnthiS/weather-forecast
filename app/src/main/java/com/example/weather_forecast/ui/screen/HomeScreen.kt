@@ -18,9 +18,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Air
 import androidx.compose.material.icons.filled.WaterDrop
@@ -52,16 +54,20 @@ import coil.compose.AsyncImage
 import com.example.weather_forecast.domain.model.ForecastItem
 import com.example.weather_forecast.domain.model.ForecastWeatherInfo
 import com.example.weather_forecast.domain.model.WeatherInfo
+import com.example.weather_forecast.utils.formatDateTime
+import com.example.weather_forecast.utils.groupForecastByDay
 
 @Composable
 fun HomeScreen(viewModel: HomeViewModel) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var city by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
+    val scrollState = rememberScrollState()
 
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .verticalScroll(scrollState)
             .padding(16.dp),
         verticalArrangement = Arrangement.Top
     ) {
@@ -113,7 +119,7 @@ fun HomeScreen(viewModel: HomeViewModel) {
             is UiState.Success -> {
                 val data = (uiState as UiState.Success)
                 WeatherResult(data.weather)
-                ForecastResult(data.forecast)
+                ForecastResult(data.forecast, data.weather.updatedAt)
             }
 
             is UiState.Error -> {
@@ -280,24 +286,28 @@ fun CustomVerticalDivider() {
 }
 
 @Composable
-fun ForecastResult(forecast: ForecastWeatherInfo) {
-    Column(modifier = Modifier.fillMaxSize()) {
-        Text(
-            text = "5 Day / 3 Hour Forecast",
-            style = MaterialTheme.typography.headlineSmall,
-            modifier = Modifier.padding(16.dp)
-        )
-        ForecastList(forecast)
+fun ForecastResult(forecast: ForecastWeatherInfo, updatedTime: String) {
+    val grouped = forecast.items.groupForecastByDay()
+    grouped.forEach { (day, items) ->
+        Column {
+            Text(
+                text = if (updatedTime.contains(day)) "Today" else day,
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(start = 8.dp, top = 8.dp)
+            )
+            ForecastList(items)
+        }
+
     }
 }
 
 @Composable
-fun ForecastList(forecast: ForecastWeatherInfo) {
+fun ForecastList(listForecast: List<ForecastItem>) {
     LazyRow(
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        items(forecast.items) { item ->
+        items(listForecast) { item ->
             ForecastCard(item)
         }
     }
@@ -317,7 +327,7 @@ fun ForecastCard(item: ForecastItem, modifier: Modifier = Modifier) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = item.time,
+                text = formatDateTime(item.time, "HH:mm"),
                 style = MaterialTheme.typography.bodySmall
             )
 
